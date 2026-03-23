@@ -4,7 +4,7 @@ import { media } from '../../data/media'
 
 const route = useRoute()
 
-const type = computed<MediaType>(() => route.query.type as MediaType || 'anime')
+const type = computed<MediaType>(() => route.query.type as MediaType || 'book')
 </script>
 
 <template>
@@ -23,17 +23,14 @@ const type = computed<MediaType>(() => route.query.type as MediaType || 'anime')
     </div>
 
     <template v-for="t of Object.keys(media)" :key="t">
-      <table v-show="type === t" lang="ja" font-400>
+      <table v-show="type === t" lang="ja" font-400 lg-md="mr--20 w-[calc(100%+10rem)]!">
         <tbody>
           <template v-for="m of media[type]" :key="m.name">
             <tr v-if="!m.state" v-bind="m.lang ? { lang: m.lang } : {}">
               <td>{{ m.name }}</td>
-              <td text-right>
-                {{ m.creator }}
-              </td>
-              <td v-if="m.note" lt-sm:hidden>
-                {{ m.note }}
-              </td>
+              <td>{{ m.creator }}</td>
+              <td>{{ m.date }}</td>
+              <td>{{ m.note }}</td>
             </tr>
           </template>
         </tbody>

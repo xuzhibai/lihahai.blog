@@ -87,72 +87,89 @@ const ArtComponent = computed(() => {
   }
   return undefined
 })
+
+// Add a computed property to determine parent route based on frontmatter type
+const parentRoute = computed(() => {
+  // If it's a note type article, always go to /notes
+  if (frontmatter.type === 'note')
+    return '/notes'
+
+  // Original logic for other types
+  return route.path.startsWith('/zh/') ? '/posts' : (route.path.split('/').slice(0, -1).join('/') || '/')
+})
 </script>
 
 <template>
-  <ClientOnly v-if="ArtComponent">
-    <component :is="ArtComponent" />
-  </ClientOnly>
-  <div
-    v-if="frontmatter.display ?? frontmatter.title"
-    class="prose m-auto mb-8"
-    :lang="frontmatter.lang"
-    :class="[frontmatter.wrapperClass]"
-  >
-    <h1 class="mb-0 slide-enter-50">
-      {{ frontmatter.display ?? frontmatter.title }}
-    </h1>
-    <p
-      v-if="frontmatter.date"
-      class="opacity-50 !-mt-6 slide-enter-50"
+  <div>
+    <ClientOnly v-if="ArtComponent">
+      <component :is="ArtComponent" />
+    </ClientOnly>
+    <div
+        v-if="frontmatter.display ?? frontmatter.title"
+        class="prose m-auto mb-8"
+        :lang="frontmatter.lang"
+        :class="[frontmatter.wrapperClass]"
     >
-      {{ formatDate(frontmatter.date, false) }} <span v-if="frontmatter.duration">· {{ frontmatter.duration }}</span>
-    </p>
-    <p v-if="frontmatter.place" class="mt--4!">
-      <span op50>at </span>
-      <a v-if="frontmatter.placeLink" :href="frontmatter.placeLink" target="_blank">
-        {{ frontmatter.place }}
-      </a>
-      <span v-else font-bold>
+      <h1 class="mb-0 slide-enter-50">
+        {{ frontmatter.display ?? frontmatter.title }}
+      </h1>
+      <p
+          v-if="frontmatter.date"
+          class="opacity-50 !-mt-6 slide-enter-50"
+      >
+        {{ formatDate(frontmatter.date, false) }} <span v-if="frontmatter.duration">· {{ frontmatter.duration }}</span>
+      </p>
+      <p v-if="frontmatter.place" class="mt--4!">
+        <span op50>at </span>
+        <a v-if="frontmatter.placeLink" :href="frontmatter.placeLink" target="_blank">
+          {{ frontmatter.place }}
+        </a>
+        <span v-else font-bold>
         {{ frontmatter.place }}
       </span>
-    </p>
-    <p
-      v-if="frontmatter.subtitle"
-      class="opacity-50 !-mt-6 italic slide-enter"
+      </p>
+      <p
+          v-if="frontmatter.subtitle"
+          class="opacity-50 !-mt-6 italic slide-enter"
+      >
+        {{ frontmatter.subtitle }}
+      </p>
+      <p
+          v-if="frontmatter.draft"
+          class="slide-enter" bg-orange-4:10 text-orange-4 border="l-3 orange-4" px4 py2
+      >
+        This is a draft post, the content may be incomplete. Please check back later.
+      </p>
+    </div>
+    <article
+        ref="content"
+        :lang="frontmatter.lang"
+        :class="[frontmatter.tocAlwaysOn ? 'toc-always-on' : '', frontmatter.class]"
     >
-      {{ frontmatter.subtitle }}
-    </p>
-    <p
-      v-if="frontmatter.draft"
-      class="slide-enter" bg-orange-4:10 text-orange-4 border="l-3 orange-4" px4 py2
-    >
-      This is a draft post, the content may be incomplete. Please check back later.
-    </p>
-  </div>
-  <article
-    ref="content"
-    :lang="frontmatter.lang"
-    :class="[frontmatter.tocAlwaysOn ? 'toc-always-on' : '', frontmatter.class]"
-  >
-    <slot />
-  </article>
-  <div v-if="route.path !== '/'" class="prose m-auto mt-8 mb-8 slide-enter animate-delay-500 print:hidden">
-    <!--    <template v-if="frontmatter.duration"> -->
-    <!--      <span font-mono op50>> </span> -->
-    <!--      <span op50>comment on </span> -->
-    <!--      <a :href="blueskyUrl" target="_blank" op50>bluesky</a> -->
-    <!--      <span op25> / </span> -->
-    <!--      <a :href="elkUrl" target="_blank" op50>mastodon</a> -->
-    <!--      <span op25> / </span> -->
-    <!--      <a :href="tweetUrl" target="_blank" op50>twitter</a> -->
-    <!--    </template> -->
-    <!--    <br> -->
-    <!--    <span font-mono op50>> </span> -->
-    <RouterLink
-      :to="route.path.split('/').slice(0, -1).join('/') || '/'"
-      class="font-mono op50 hover:op75"
-      v-text="'cd ..'"
-    />
+      <slot />
+    </article>
+    <div v-if="route.path !== '/'" class="prose m-auto mt-8 mb-8 slide-enter animate-delay-500 print:hidden">
+      <!--    <template v-if="frontmatter.duration"> -->
+      <!--      <span font-mono op50>> </span> -->
+      <!--      <span op50>comment on </span> -->
+      <!--      <a :href="blueskyUrl" target="_blank" op50>bluesky</a> -->
+      <!--      <span op25> / </span> -->
+      <!--      <a :href="elkUrl" target="_blank" op50>mastodon</a> -->
+      <!--      <span op25> / </span> -->
+      <!--      <a :href="tweetUrl" target="_blank" op50>twitter</a> -->
+      <!--    </template> -->
+      <!--    <br> -->
+      <!--    <span font-mono op50>> </span> -->
+<!--      <RouterLink-->
+<!--          :to="route.path.split('/').slice(0, -1).join('/') || '/'"-->
+<!--          class="font-mono op50 hover:op75"-->
+<!--          v-text="'cd ..'"-->
+<!--      />-->
+      <RouterLink
+          :to="parentRoute"
+          class="font-mono op50 hover:op75"
+          v-text="'cd ..'"
+      />
+    </div>
   </div>
 </template>

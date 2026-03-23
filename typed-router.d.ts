@@ -44,6 +44,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/friends': RouteRecordInfo<
+      '/friends',
+      '/friends',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/media': RouteRecordInfo<
       '/media',
       '/media',
@@ -79,9 +86,9 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/posts/first-blog': RouteRecordInfo<
-      '/posts/first-blog',
-      '/posts/first-blog',
+    '/posts/test-blog': RouteRecordInfo<
+      '/posts/test-blog',
+      '/posts/test-blog',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -110,6 +117,13 @@ declare module 'vue-router/auto-routes' {
     '/talks': RouteRecordInfo<
       '/talks',
       '/talks',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/zh/2025/first-blog': RouteRecordInfo<
+      '/zh/2025/first-blog',
+      '/zh/2025/first-blog',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -145,6 +159,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'pages/friends.md': {
+      routes:
+        | '/friends'
+      views:
+        | never
+    }
     'pages/media.md': {
       routes:
         | '/media'
@@ -175,9 +195,9 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'pages/posts/first-blog.md': {
+    'pages/posts/test-blog.md': {
       routes:
-        | '/posts/first-blog'
+        | '/posts/test-blog'
       views:
         | never
     }
@@ -202,6 +222,12 @@ declare module 'vue-router/auto-routes' {
     'pages/talks.md': {
       routes:
         | '/talks'
+      views:
+        | never
+    }
+    'pages/zh/2025/first-blog.md': {
+      routes:
+        | '/zh/2025/first-blog'
       views:
         | never
     }

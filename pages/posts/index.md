@@ -1,11 +1,8 @@
 ---
 title: Blog - Lihahai
-display: ''
-art: plum
+display: 'Blog'
+art: dots
 ---
 
-[//]: # '<SubNav />'
-
-# Posts
 
 <ListPosts only-date type="blog" />

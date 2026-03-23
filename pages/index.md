@@ -2,7 +2,7 @@
 title: Lihahai
 description: Lihahai's Portfolio
 # image: https://github.com/Lihahai
-art: random
+art: dots
 ---
 
 你好，我是Lihahai，一个后端开发工程师。
