@@ -12,7 +12,7 @@
   <!--  </p> -->
   <p flex="~ gap-2 wrap">
     <a
-      href="https://github.com/Lihahai"
+      href="https://github.com/xuzhibai"
       target="_blank"
       class="group btn-rose inline-block"
     >
@@ -21,10 +21,10 @@
         group-hover="i-ph-heart-fill text-rose"
         transition-all duration-200 ease-out
       />
-      Sponsor to support Lihahai
+      Sponsor to support Xuzhibai
     </a>
     <a
-      href="https://github.com/Lihahai"
+      href="https://github.com/xuzhibai"
       target="_blank"
       class="group btn-yellow inline-block"
     >

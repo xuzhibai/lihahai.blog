@@ -14,7 +14,7 @@ function slug(name: string) {
     <div class="prose pb5 mx-auto mt10 text-center">
       <div flex="~ gap-2 justify-center">
         <a
-          href="https://github.com/Lihahai"
+          href="https://github.com/xuzhibai"
           target="_blank"
           class="group btn-blue inline-block"
         >
@@ -73,7 +73,7 @@ function slug(name: string) {
     </div>
     <div class="prose pb5 mx-auto mt10 text-center">
       <div block mt-5>
-        <a href="https://github.com/Lihahai" target="_blank" op50>All projects sort by Stars</a>
+        <a href="https://github.com/xuzhibai" target="_blank" op50>All projects sort by Stars</a>
       </div>
       <hr>
       <SponsorButtons />

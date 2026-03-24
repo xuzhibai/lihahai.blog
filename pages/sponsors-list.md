@@ -1,8 +1,8 @@
 ---
-title: Sponsors - Lihahai
+title: Sponsors - 叙枝白
 display: Sponsors
 subtitle: Great thanks for all the Sponsors!
-description: Sponsors of Lihahai
+description: Sponsors of Xuzhibai
 ---
 
 <!-- @layout-full-width -->

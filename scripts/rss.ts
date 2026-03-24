@@ -6,10 +6,9 @@ import fs from 'fs-extra'
 import matter from 'gray-matter'
 import MarkdownIt from 'markdown-it'
 
-const DOMAIN = 'https://github.com/Lihahai'
+const DOMAIN = 'https://github.com/xuzhibai'
 const AUTHOR = {
-  name: 'Lihahai',
-  email: 'test@test.me',
+  name: '叙枝白',
   link: DOMAIN,
 }
 const markdown = MarkdownIt({
@@ -26,15 +25,15 @@ async function buildBlogRSS() {
   const files = await fg('pages/posts/*.md')
 
   const options = {
-    title: 'Lihahai',
-    description: 'Lihahai\' Blog',
-    id: 'https://github.com/Lihahai',
-    link: 'https://github.com/Lihahai',
-    copyright: 'CC BY-NC-SA 4.0 2021 © Lihahai',
+    title: '叙枝白的博客',
+    description: 'Xuzhibai\' Blog',
+    id: 'https://github.com/xuzhibai',
+    link: 'https://github.com/xuzhibai',
+    copyright: 'CC BY-NC-SA 4.0 2021 © Xuzhibai',
     feedLinks: {
-      json: 'https://github.com/Lihahai/feed.json',
-      atom: 'https://github.com/Lihahai/feed.atom',
-      rss: 'https://github.com/Lihahai/feed.xml',
+      json: 'https://github.com/xuzhibai/feed.json',
+      atom: 'https://github.com/xuzhibai/feed.atom',
+      rss: 'https://github.com/xuzhibai/feed.xml',
     },
   }
   const posts: any[] = (
