@@ -88,15 +88,16 @@ const ArtComponent = computed(() => {
   return undefined
 })
 
-// Add a computed property to determine parent route based on frontmatter type
-const parentRoute = computed(() => {
-  // If it's a note type article, always go to /notes
-  if (frontmatter.type === 'note')
-    return '/notes'
-
-  // Original logic for other types
-  return route.path.startsWith('/zh/') ? '/posts' : (route.path.split('/').slice(0, -1).join('/') || '/')
-})
+// Navigate back to previous page
+const goBack = () => {
+  if (window.history.length > 1) {
+    window.history.back()
+  }
+  else {
+    // Fallback to home if no history
+    router.push('/')
+  }
+}
 </script>
 
 <template>
@@ -105,7 +106,7 @@ const parentRoute = computed(() => {
       <component :is="ArtComponent" />
     </ClientOnly>
     <div
-        v-if="frontmatter.display ?? frontmatter.title"
+        v-if="!frontmatter.hideTitle && (frontmatter.display ?? frontmatter.title)"
         class="prose m-auto mb-8"
         :lang="frontmatter.lang"
         :class="[frontmatter.wrapperClass]"
@@ -165,9 +166,9 @@ const parentRoute = computed(() => {
 <!--          class="font-mono op50 hover:op75"-->
 <!--          v-text="'cd ..'"-->
 <!--      />-->
-      <RouterLink
-          :to="parentRoute"
-          class="font-mono op50 hover:op75"
+      <button
+          @click="goBack"
+          class="font-mono op50 hover:op75 bg-transparent border-none cursor-pointer"
           v-text="'cd ..'"
       />
     </div>

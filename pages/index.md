@@ -1,13 +1,12 @@
 ---
-title: 叙枝白的博客
+title: "叙枝白的博客"
+hideTitle: true
 description: Xuzhibai's Portfolio
-# image: https://github.com/xuzhibai
 art: dots
 ---
+<h1>你好，我是叙枝白</h1>
 
-你好，我是叙枝白，一个后端开发工程师。
-
-这里是我的个人博客，目前还在施工中。
+一名后端开发 👨🏻‍💻，这是我的博客，目前还在施工中~
 
 你也可以在这里找到我：
 
@@ -17,3 +16,5 @@ art: dots
     Github
   </a>
 </p>
+
+<HomePosts />
