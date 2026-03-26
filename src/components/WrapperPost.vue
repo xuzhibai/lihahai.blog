@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { formatDate } from '~/logics'
+import dayjs from 'dayjs'
 import TableOfContents from './TableOfContents.vue'
 
 const { frontmatter } = defineProps({
@@ -153,9 +153,9 @@ function goBack() {
       </h1>
       <p
         v-if="frontmatter.date"
-        class="opacity-50 !-mt-6 slide-enter-50"
+        class="opacity-50 !-mt-6 slide-enter-50 text-xs"
       >
-        {{ formatDate(frontmatter.date, false) }} <span v-if="frontmatter.duration">· {{ frontmatter.duration }}</span>
+        {{ dayjs(frontmatter.date).format('YYYY-MM-DD') }} <span v-if="frontmatter.duration">· {{ frontmatter.duration }}</span>
       </p>
       <p v-if="frontmatter.place" class="mt--4!">
         <span op50>at </span>

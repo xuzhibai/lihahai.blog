@@ -12,7 +12,7 @@ const { y: scroll } = useWindowScroll()
 <template>
   <header class="header z-40">
     <RouterLink
-      class="w-12 h-12 absolute xl:fixed m-5 select-none outline-none"
+      class="w-12 h-12 absolute xl:fixed m-5 select-none outline-none logo-link"
       to="/"
       focusable="false"
     >
@@ -122,5 +122,13 @@ const { y: scroll } = useWindowScroll()
 
 .nav .right > * {
   margin: auto;
+}
+
+.logo-link {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15)) drop-shadow(0 0 1px rgba(0, 0, 0, 0.1));
+}
+
+:global(.dark) .logo-link {
+  filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 1px rgba(255, 255, 255, 0.15));
 }
 </style>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { Post } from '~/types'
 import { useRouter } from 'vue-router/auto'
-import { englishOnly, formatDate } from '~/logics'
+import { englishOnly } from '~/logics'
+import dayjs from 'dayjs'
 
 const props = defineProps<{
   type?: string
@@ -126,7 +127,7 @@ function getGroupName(p: Post) {
               />
 
               <span text-sm op50 ws-nowrap>
-                {{ formatDate(route.date, true) }}
+                {{ dayjs(route.date).format('MM-DD') }}
               </span>
               <span v-if="route.duration" text-sm op40 ws-nowrap>· {{ route.duration }}</span>
               <span v-if="route.platform" text-sm op40 ws-nowrap>· {{ route.platform }}</span>
