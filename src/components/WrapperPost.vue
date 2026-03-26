@@ -1,5 +1,6 @@
 <script setup lang='ts'>
 import { formatDate } from '~/logics'
+import TableOfContents from './TableOfContents.vue'
 
 const { frontmatter } = defineProps({
   frontmatter: {
@@ -8,14 +9,46 @@ const { frontmatter } = defineProps({
   },
 })
 
+interface TocItem {
+  id: string
+  text: string
+  level: number
+}
+
 const router = useRouter()
 const route = useRoute()
 const content = ref<HTMLDivElement>()
+const tocItems = ref<TocItem[]>([])
 
 // const base = 'https://antfu.me'
 // const tweetUrl = computed(() => `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Reading @antfu7\'s ${base}${route.path}\n\nI think...`)}`)
 // const elkUrl = computed(() => `https://elk.zone/intent/post?text=${encodeURIComponent(`Reading @antfu@m.webtoo.ls\'s ${base}${route.path}\n\nI think...`)}`)
 // const blueskyUrl = computed(() => `https://bsky.app/intent/compose?text=${encodeURIComponent(`Reading @antfu.me ${base}${route.path}\n\nI think...`)}`)
+
+function extractTocItems() {
+  if (!content.value)
+    return
+
+  const headings = content.value.querySelectorAll('h2, h3, h4')
+  const items: TocItem[] = []
+
+  headings.forEach((heading) => {
+    const id = heading.getAttribute('id')
+    const anchor = heading.querySelector('.header-anchor')
+    let text = heading.textContent || ''
+    if (anchor) {
+      text = text.replace(anchor.textContent || '', '')
+    }
+    text = text.trim()
+    const level = Number.parseInt(heading.tagName.charAt(1))
+
+    if (id && text) {
+      items.push({ id, text, level })
+    }
+  })
+
+  tocItems.value = items
+}
 
 onMounted(() => {
   const navigate = () => {
@@ -73,6 +106,10 @@ onMounted(() => {
     if (!navigate())
       setTimeout(navigate, 1000)
   }, 1)
+
+  setTimeout(() => {
+    extractTocItems()
+  }, 100)
 })
 
 const ArtComponent = computed(() => {
@@ -89,7 +126,7 @@ const ArtComponent = computed(() => {
 })
 
 // Navigate back to previous page
-const goBack = () => {
+function goBack() {
   if (window.history.length > 1) {
     window.history.back()
   }
@@ -101,22 +138,22 @@ const goBack = () => {
 </script>
 
 <template>
-  <div>
+  <div class="post-wrapper">
     <ClientOnly v-if="ArtComponent">
       <component :is="ArtComponent" />
     </ClientOnly>
     <div
-        v-if="!frontmatter.hideTitle && (frontmatter.display ?? frontmatter.title)"
-        class="prose m-auto mb-8"
-        :lang="frontmatter.lang"
-        :class="[frontmatter.wrapperClass]"
+      v-if="!frontmatter.hideTitle && (frontmatter.display ?? frontmatter.title)"
+      class="prose m-auto mb-8"
+      :lang="frontmatter.lang"
+      :class="[frontmatter.wrapperClass]"
     >
       <h1 class="mb-0 slide-enter-50">
         {{ frontmatter.display ?? frontmatter.title }}
       </h1>
       <p
-          v-if="frontmatter.date"
-          class="opacity-50 !-mt-6 slide-enter-50"
+        v-if="frontmatter.date"
+        class="opacity-50 !-mt-6 slide-enter-50"
       >
         {{ formatDate(frontmatter.date, false) }} <span v-if="frontmatter.duration">· {{ frontmatter.duration }}</span>
       </p>
@@ -126,51 +163,61 @@ const goBack = () => {
           {{ frontmatter.place }}
         </a>
         <span v-else font-bold>
-        {{ frontmatter.place }}
-      </span>
+          {{ frontmatter.place }}
+        </span>
       </p>
       <p
-          v-if="frontmatter.subtitle"
-          class="opacity-50 !-mt-6 italic slide-enter"
+        v-if="frontmatter.subtitle"
+        class="opacity-50 !-mt-6 italic slide-enter"
       >
         {{ frontmatter.subtitle }}
       </p>
       <p
-          v-if="frontmatter.draft"
-          class="slide-enter" bg-orange-4:10 text-orange-4 border="l-3 orange-4" px4 py2
+        v-if="frontmatter.draft"
+        class="slide-enter"
+        bg-orange-4:10
+        text-orange-4
+        border="l-3 orange-4"
+        px4
+        py2
       >
         This is a draft post, the content may be incomplete. Please check back later.
       </p>
     </div>
     <article
-        ref="content"
-        :lang="frontmatter.lang"
-        :class="[frontmatter.tocAlwaysOn ? 'toc-always-on' : '', frontmatter.class]"
+      ref="content"
+      :lang="frontmatter.lang"
+      :class="[frontmatter.tocAlwaysOn ? 'toc-always-on' : '', frontmatter.class]"
     >
       <slot />
     </article>
     <div v-if="route.path !== '/'" class="prose m-auto mt-8 mb-8 slide-enter animate-delay-500 print:hidden">
-      <!--    <template v-if="frontmatter.duration"> -->
-      <!--      <span font-mono op50>> </span> -->
-      <!--      <span op50>comment on </span> -->
-      <!--      <a :href="blueskyUrl" target="_blank" op50>bluesky</a> -->
-      <!--      <span op25> / </span> -->
-      <!--      <a :href="elkUrl" target="_blank" op50>mastodon</a> -->
-      <!--      <span op25> / </span> -->
-      <!--      <a :href="tweetUrl" target="_blank" op50>twitter</a> -->
-      <!--    </template> -->
-      <!--    <br> -->
-      <!--    <span font-mono op50>> </span> -->
-<!--      <RouterLink-->
-<!--          :to="route.path.split('/').slice(0, -1).join('/') || '/'"-->
-<!--          class="font-mono op50 hover:op75"-->
-<!--          v-text="'cd ..'"-->
-<!--      />-->
+      <!--
+      <template v-if="frontmatter.duration">
+        <span font-mono op50>> </span>
+        <span op50>comment on </span>
+        <a :href="blueskyUrl" target="_blank" op50>bluesky</a>
+        <span op25> / </span>
+        <a :href="elkUrl" target="_blank" op50>mastodon</a>
+        <span op25> / </span>
+        <a :href="tweetUrl" target="_blank" op50>twitter</a>
+      </template>
+      <br>
+      <span font-mono op50>> </span>
+      <RouterLink
+        :to="route.path.split('/').slice(0, -1).join('/') || '/'"
+        class="font-mono op50 hover:op75"
+        v-text="'cd ..'"
+      />
+      -->
       <button
-          @click="goBack"
-          class="font-mono op50 hover:op75 bg-transparent border-none cursor-pointer"
-          v-text="'cd ..'"
+        class="font-mono op50 hover:op75 bg-transparent border-none cursor-pointer"
+        @click="goBack"
+        v-text="'cd ..'"
       />
     </div>
+    <ClientOnly>
+      <TableOfContents v-if="tocItems.length > 0" :items="tocItems" />
+    </ClientOnly>
   </div>
 </template>

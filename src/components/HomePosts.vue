@@ -62,12 +62,16 @@ const posts = computed(() =>
         }"
         class="post-item"
       >
-        <div class="post-title">{{ route.title }}</div>
+        <div class="post-title">
+          {{ route.title }}
+        </div>
         <div class="post-meta">
           <span>{{ formatDate(route.date, true) }}</span>
           <span v-if="route.duration">· {{ route.duration }}</span>
         </div>
-        <p v-if="route.desc" class="post-desc">{{ route.desc }}</p>
+        <p v-if="route.desc" class="post-desc">
+          {{ route.desc }}
+        </p>
       </component>
     </div>
 

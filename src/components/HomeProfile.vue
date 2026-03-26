@@ -11,7 +11,9 @@ const socialLinks = [
 <template>
   <div class="home-profile">
     <h1>你好，我是叙枝白</h1>
-    <p class="subtitle">后端开发工程师 · 技术爱好者</p>
+    <p class="subtitle">
+      后端开发工程师 · 技术爱好者
+    </p>
     <p class="bio">
       热爱编程，专注于后端开发。喜欢探索新技术，享受将想法转化为现实的过程。
     </p>
