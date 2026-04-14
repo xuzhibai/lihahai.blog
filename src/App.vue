@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// import ArtSnowGPU from './components/ArtSnowGPU.vue'
+// import ArtSakura from './components/ArtSakura.vue'
+
 const route = useRoute()
 
 const imageModel = ref<HTMLImageElement>()
@@ -74,6 +77,8 @@ onKeyStroke('Escape', (e) => {
 </script>
 
 <template>
+  <!-- <ArtSnowGPU /> -->
+  <!-- <ArtSakura /> -->
   <NavBar />
   <main class="px-7 py-10 of-x-hidden">
     <RouterView />
