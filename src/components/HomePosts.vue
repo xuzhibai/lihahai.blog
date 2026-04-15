@@ -167,10 +167,16 @@ const posts = computed(() =>
   align-items: baseline;
   gap: 0.375rem;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 .separator {
-  opacity: 0.6;
+  opacity: 1;
+}
+
+.post-meta > span:last-child {
+  min-width: 2.1rem;
+  text-align: right;
 }
 
 .post-desc {

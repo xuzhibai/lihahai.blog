@@ -1,9 +1,12 @@
+
+www.xuzhibai.com
+
 my personal website
 
 ## Thanks
 
-- Based on [antfu.me](https://github.com/antfu/antfu.me)
-- powered by [vite-ssg](https://github.com/antfu/vite-ssg)
+- [antfu.me](https://github.com/antfu/antfu.me)
+- [pseudoyu](https://github.com/pseudoyu/pseudoyu.com)
 
 ## License
 
