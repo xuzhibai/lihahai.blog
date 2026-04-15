@@ -124,11 +124,9 @@ const { y: scroll } = useWindowScroll()
   margin: auto;
 }
 
-.logo-link {
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15)) drop-shadow(0 0 1px rgba(0, 0, 0, 0.1));
-}
-
-:global(.dark) .logo-link {
-  filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 1px rgba(255, 255, 255, 0.15));
+.logo-link :deep(img) {
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.12);
 }
 </style>

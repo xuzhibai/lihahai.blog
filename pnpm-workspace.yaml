@@ -1,11 +1,15 @@
 catalogMode: prefer
-shellEmulator: true
-trustPolicy: no-downgrade
 
+shellEmulator: true
+
+trustPolicy: no-downgrade
 packages: []
 
 overrides:
   parse5: ^7.1.2
+catalog:
+  satori: ^0.26.0
+
 catalogs:
   build:
     '@shikijs/markdown-it': ^3.20.0
