@@ -93,8 +93,8 @@ const posts = computed(() =>
   border-top: 1px solid rgba(60, 60, 60, 0.12);
 }
 
-:global(.dark) .recent-posts {
-  border-top-color: rgba(255, 255, 255, 0.15);
+:global(html.dark .recent-posts) {
+  border-top-color: rgba(255, 255, 255, 0.12);
 }
 
 .section-title {
@@ -118,7 +118,7 @@ const posts = computed(() =>
 }
 
 :global(.dark) .post-item {
-  border-bottom-color: rgba(255, 255, 255, 0.15);
+  border-bottom-color: rgba(125, 125, 125, 0.3);
 }
 
 .post-article {
@@ -139,6 +139,13 @@ const posts = computed(() =>
     align-items: baseline;
     justify-content: space-between;
     gap: 0.5rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .post-meta {
+    margin-left: 0 !important;
+    justify-content: flex-start;
   }
 }
 

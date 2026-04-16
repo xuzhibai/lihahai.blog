@@ -263,9 +263,10 @@ const visibleHeadings = computed(() => getVisibleHeadings())
     <template v-else>
       <button
         class="toc-mobile-btn"
+        title="目录"
         @click="openMobileDrawer"
       >
-        <div class="i-ri-menu-2-fill" />
+        <div i-ri-menu-2-fill />
       </button>
 
       <Teleport to="body">
@@ -388,29 +389,31 @@ const visibleHeadings = computed(() => getVisibleHeadings())
 
 .toc-mobile-btn {
   position: fixed;
-  right: 16px;
-  bottom: 40px;
-  z-index: 300;
-  width: 48px;
-  height: 48px;
+  right: 12px;
+  bottom: 56px;
+  z-index: 100;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: var(--c-bg);
-  border: 1px solid rgba(128, 128, 128, 0.2);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: transparent;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 20px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  color: var(--fg);
+  opacity: 0.4;
+  transition: all 0.3s ease;
+}
+
+.toc-mobile-btn:hover {
+  opacity: 1;
+  background: rgba(136, 136, 136, 0.2);
 }
 
 .toc-mobile-btn:active {
   transform: scale(0.95);
-}
-
-.toc-mobile-btn:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
 .toc-mobile-overlay {

@@ -1,5 +1,6 @@
 import dayjs from 'dayjs'
 import LocalizedFormat from 'dayjs/plugin/localizedFormat.js'
+import utc from 'dayjs/plugin/utc.js'
 import FloatingVue from 'floating-vue'
 import NProgress from 'nprogress'
 import { createPinia } from 'pinia'
@@ -28,6 +29,7 @@ export const createApp = ViteSSG(
   },
   ({ router, app, isClient }) => {
     dayjs.extend(LocalizedFormat)
+    dayjs.extend(utc)
 
     app.use(FloatingVue)
     app.use(createPinia())

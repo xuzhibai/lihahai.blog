@@ -12,7 +12,7 @@ const { y: scroll } = useWindowScroll()
 <template>
   <header class="header z-40">
     <RouterLink
-      class="w-12 h-12 absolute xl:fixed m-5 select-none outline-none logo-link"
+      class="logo-link absolute xl:fixed select-none outline-none"
       to="/"
       focusable="false"
     >
@@ -22,11 +22,12 @@ const { y: scroll } = useWindowScroll()
       title="Scroll to top"
       fixed right-3 bottom-3 w-10 h-10 hover:op100 rounded-full
       hover-bg-hex-8883 transition duration-300 z-100 print:hidden
-      :class="scroll > 300 ? 'op30' : 'op0! pointer-events-none'"
+      :class="scroll > 300 ? 'op40' : 'op0! pointer-events-none'"
       @click="toTop()"
     >
       <div i-ri-arrow-up-line />
     </button>
+
     <nav class="nav">
       <div class="spacer" />
       <div class="right" print:op0>
@@ -124,7 +125,26 @@ const { y: scroll } = useWindowScroll()
   margin: auto;
 }
 
+.logo-link {
+  top: 0;
+  left: 0;
+  margin: 1.625rem 1.25rem;
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+@media (min-width: 768px) {
+  .logo-link {
+    margin: 1.25rem;
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+}
+
 .logo-link :deep(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.08),
     0 1px 3px rgba(0, 0, 0, 0.12);
