@@ -6,7 +6,7 @@ import fs from 'fs-extra'
 import matter from 'gray-matter'
 import MarkdownIt from 'markdown-it'
 
-const DOMAIN = 'https://github.com/xuzhibai'
+const DOMAIN = 'https://www.xuzhibai.com'
 const AUTHOR = {
   name: '叙枝白',
   link: DOMAIN,
@@ -27,13 +27,13 @@ async function buildBlogRSS() {
   const options = {
     title: '叙枝白的博客',
     description: 'Xuzhibai\' Blog',
-    id: 'https://github.com/xuzhibai',
-    link: 'https://github.com/xuzhibai',
+    id: 'https://www.xuzhibai.com/',
+    link: 'https://www.xuzhibai.com/',
     copyright: 'CC BY-NC-SA 4.0 2021 © Xuzhibai',
     feedLinks: {
-      json: 'https://github.com/xuzhibai/feed.json',
-      atom: 'https://github.com/xuzhibai/feed.atom',
-      rss: 'https://github.com/xuzhibai/feed.xml',
+      json: 'https://www.xuzhibai.com/feed.json',
+      atom: 'https://www.xuzhibai.com/feed.atom',
+      rss: 'https://www.xuzhibai.com/feed.xml',
     },
   }
   const posts: any[] = (
@@ -43,7 +43,16 @@ async function buildBlogRSS() {
           const raw = await fs.readFile(i, 'utf-8')
           const { data, content } = matter(raw)
 
-          if (data.lang !== 'en')
+          // Skip notes - check if type is explicitly "note" or if it's from notes directory
+          if (data.type === 'note')
+            return
+
+          // Skip files without a valid date
+          if (!data.date)
+            return
+          // Validate date is valid before using it
+          const dateObj = new Date(data.date)
+          if (Number.isNaN(dateObj.getTime()))
             return
 
           const html = markdown.render(content)
@@ -54,7 +63,7 @@ async function buildBlogRSS() {
 
           return {
             ...data,
-            date: new Date(data.date),
+            date: dateObj,
             content: html,
             author: [AUTHOR],
             link: DOMAIN + i.replace(/^pages(.+)\.md$/, '$1'),
@@ -70,8 +79,8 @@ async function buildBlogRSS() {
 
 async function writeFeed(name: string, options: FeedOptions, items: Item[]) {
   options.author = AUTHOR
-  options.image = 'https://test.me/avatar.png'
-  options.favicon = 'https://test.me/logo.png'
+  options.image = 'https://www.xuzhibai.com/avatar.jpg'
+  options.favicon = 'https://www.xuzhibai.com/favicon.jpg'
 
   const feed = new Feed(options)
 
@@ -82,6 +91,10 @@ async function writeFeed(name: string, options: FeedOptions, items: Item[]) {
   await fs.writeFile(`./dist/${name}.xml`, feed.rss2(), 'utf-8')
   await fs.writeFile(`./dist/${name}.atom`, feed.atom1(), 'utf-8')
   await fs.writeFile(`./dist/${name}.json`, feed.json1(), 'utf-8')
+
+  // Generate zh/index.xml to maintain compatibility with the former setup
+  await fs.ensureDir('./dist/zh')
+  await fs.writeFile('./dist/zh/index.xml', feed.rss2(), 'utf-8')
 }
 
 run()
