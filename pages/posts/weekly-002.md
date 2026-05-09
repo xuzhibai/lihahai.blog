@@ -65,7 +65,7 @@ duration: 5min
 
 一个基于Markdown的知识管理工具，开源、跨平台、10.1k star。
 
-![](image.xuzhibai.com/images/171a8de2542138c33cfec1c41b4ca701.png)
+![](https://image.xuzhibai.com/images/171a8de2542138c33cfec1c41b4ca701.png)
 
 最让我眼前一亮的是结合了notion和Obsidian的优点。支持Notion那样的Block-based editing和斜杠命令，又像Obsidian一样基于Markdown文件，本地优先、 离线可用。内置了Git同步和AI工具，还提供了MCP供其他Agent工具调用。
 
@@ -79,7 +79,7 @@ duration: 5min
 
 一个排版Skills，用于给AI生成的文档/报告做排版美化。简洁、纸质感的设计，名字来自日语"紙"（かみ）。
 
-![](image.xuzhibai.com/images/05b0843a966964f6b9ecfbc5e39c0f34.png)
+![](https://image.xuzhibai.com/images/05b0843a966964f6b9ecfbc5e39c0f34.png)
 
 我个人很喜欢这种简洁风格。支持PDF、PPT、图片多种导出格式，安装也简单。所以推荐一下。
 
