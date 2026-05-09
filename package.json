@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "compress": "tsx scripts/img-compress-staged.ts",
     "photos": "tsx scripts/photos-manage.ts",
+    "copy-post": "tsx scripts/copy-post.ts",
     "prepare": "simple-git-hooks"
   },
   "dependencies": {
