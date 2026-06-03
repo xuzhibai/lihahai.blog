@@ -73,6 +73,9 @@ catalogs:
       specifier: ^5.1.0
       version: 5.1.0
   default:
+    pinyin-pro:
+      specifier: ^3.28.1
+      version: 3.28.1
     satori:
       specifier: ^0.26.0
       version: 0.26.0
@@ -430,6 +433,9 @@ importers:
       pathe:
         specifier: catalog:dev
         version: 2.0.3
+      pinyin-pro:
+        specifier: 'catalog:'
+        version: 3.28.1
       pnpm:
         specifier: catalog:dev
         version: 10.26.1
@@ -3315,6 +3321,9 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+
+  pinyin-pro@3.28.1:
+    resolution: {integrity: sha512-oqz8ulwRgtUXRi0vbqEfGNly19zpyCxYrjhkk5TibGcgSW6eNwS5woajCXRwqURi8Ehc2yOFTiB4uNoZ+NJOnA==}
 
   pixi.js@8.14.3:
     resolution: {integrity: sha512-6xGYARV8D9E/fO1c2NmYn+k2dQ5oZldVm5tNlLQJ8obTlOQXdL5QpMc217qTpRyHVDFaw5eoFCLF1gr6p5ZcjQ==}
@@ -7271,6 +7280,8 @@ snapshots:
       vue: 3.5.26(typescript@5.9.3)
     optionalDependencies:
       typescript: 5.9.3
+
+  pinyin-pro@3.28.1: {}
 
   pixi.js@8.14.3:
     dependencies:

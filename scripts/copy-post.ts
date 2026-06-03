@@ -2,10 +2,17 @@ import { existsSync, statSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import fg from 'fast-glob'
-import { basename, join } from 'pathe'
+import { basename, join, resolve } from 'pathe'
+import { pinyin } from 'pinyin-pro'
 import prompts from 'prompts'
 
 const POSTS_DIR = fileURLToPath(new URL('../pages/posts', import.meta.url))
+
+// ===== OSS 图片上传配置 =====
+const ENABLE_OSS_UPLOAD = false
+const PICLIST_PICBED = process.env.PICLIST_PICBED || '' // 图床类型，如 'aws-s3', 'qiniu', 'upyun'
+const PICLIST_CONFIG_NAME = process.env.PICLIST_CONFIG_NAME || '' // Piclist 配置名称
+const PICLIST_UPLOAD_URL = process.env.PICLIST_UPLOAD_URL || ''
 
 interface PostMeta {
   title: string
@@ -115,26 +122,142 @@ function padWeeklyNumber(num: number): string {
   return String(num).padStart(3, '0')
 }
 
-async function main() {
-  // 从环境变量获取源目录
-  const sourceDir = process.argv[2] || process.env.BLOG_SOURCE_DIR
+/**
+ * 将中文转为拼音文件名，特殊字符用 - 替代
+ */
+function toPinyinFilename(input: string): string {
+  const converted = pinyin(input, { toneType: 'none', separator: '-' })
+  return converted
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+}
 
-  if (!sourceDir) {
-    console.error('❌ 请提供源目录路径')
-    console.log('\n使用方法:')
-    console.log('  1. 设置环境变量: export BLOG_SOURCE_DIR=<源目录路径>')
-    console.log('  2. 或通过参数: pnpm tsx scripts/copy-post.ts <源目录路径>')
-    process.exit(1)
+/**
+ * 判断文件路径是否在指定目录下
+ */
+function isUnderDir(filePath: string, dir: string): boolean {
+  const resolved = resolve(filePath)
+  const dirResolved = resolve(dir)
+  return resolved.startsWith(`${dirResolved}/`)
+}
+
+/**
+ * 通过 Piclist 上传图片到 OSS
+ */
+async function uploadImages(imagePaths: string[]): Promise<string[]> {
+  let url = PICLIST_UPLOAD_URL
+  const params = new URLSearchParams()
+  if (PICLIST_PICBED)
+    params.set('picbed', PICLIST_PICBED)
+  if (PICLIST_CONFIG_NAME)
+    params.set('configName', PICLIST_CONFIG_NAME)
+  if (params.toString())
+    url += `?${params.toString()}`
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ list: imagePaths }),
+  })
+
+  const data = await response.json() as { success: boolean, result: string[] }
+
+  if (!data.success) {
+    throw new Error('Piclist 上传失败')
   }
 
-  if (!existsSync(sourceDir)) {
-    console.error(`❌ 目录不存在: ${sourceDir}`)
-    process.exit(1)
+  return data.result
+}
+
+/**
+ * 解析 Obsidian 图片链接并上传替换为标准 markdown 格式
+ * Obsidian 格式: ![[path/to/image.png]]
+ * 转换为: ![](https://oss-url/image.png)
+ */
+async function processObsidianImages(content: string): Promise<string> {
+  if (!ENABLE_OSS_UPLOAD)
+    return content
+
+  const obsidianVaultPath = process.env.OBSIDIAN_VAULT_DIR
+  if (!obsidianVaultPath) {
+    console.warn('⚠️ 已启用 OSS 上传但未设置 OBSIDIAN_VAULT_DIR 环境变量，跳过图片处理')
+    return content
   }
 
+  // 匹配 Obsidian 图片链接 ![[...]]
+  const obsidianImageRegex = /!\[\[([^\]]+\.(png|jpe?g|gif|webp|svg|bmp))\]\]/gi
+  const matches = [...content.matchAll(obsidianImageRegex)]
+
+  if (matches.length === 0) {
+    console.log('📷 未发现 Obsidian 图片链接')
+    return content
+  }
+
+  console.log(`\n📷 发现 ${matches.length} 个 Obsidian 图片链接`)
+
+  // 构建图片路径映射
+  const imageMap = new Map<string, string>() // obsidian路径 -> 绝对路径
+  for (const match of matches) {
+    const imagePath = match[1]
+    if (!imageMap.has(imagePath)) {
+      imageMap.set(imagePath, join(obsidianVaultPath, imagePath))
+    }
+  }
+
+  // 检查图片文件是否存在
+  const validImages: string[] = []
+  const pathToObsidian = new Map<string, string>() // 绝对路径 -> obsidian路径
+  for (const [obsidianPath, absPath] of imageMap) {
+    if (existsSync(absPath)) {
+      validImages.push(absPath)
+      pathToObsidian.set(absPath, obsidianPath)
+      console.log(`  📎 ${obsidianPath}`)
+    }
+    else {
+      console.warn(`  ⚠️ 图片不存在: ${absPath}`)
+    }
+  }
+
+  if (validImages.length === 0) {
+    console.log('📷 没有可上传的图片')
+    return content
+  }
+
+  // 上传图片
+  console.log(`\n⬆️ 正在上传 ${validImages.length} 张图片到 OSS...`)
+  const uploadedUrls = await uploadImages(validImages)
+
+  // 构建替换映射：obsidian路径 -> 上传后的URL
+  const replaceMap = new Map<string, string>()
+  for (let i = 0; i < validImages.length; i++) {
+    const obsidianPath = pathToObsidian.get(validImages[i])!
+    const url = uploadedUrls[i]
+    replaceMap.set(obsidianPath, url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`)
+  }
+
+  // 替换内容中的 Obsidian 图片链接
+  let result = content
+  for (const [obsidianPath, url] of replaceMap) {
+    // 转义特殊字符用于正则
+    const escaped = obsidianPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    result = result.replace(
+      new RegExp(`!\\[\\[${escaped}\\]\\]`, 'gi'),
+      `![](${url})`,
+    )
+  }
+
+  console.log('✅ 图片上传并替换完成')
+  return result
+}
+
+/**
+ * 从目录中选择文件
+ */
+async function selectFileFromDir(sourceDir: string): Promise<string> {
   console.log('📂 扫描目录:', sourceDir)
 
-  // 扫描所有 markdown 文件
   const files = await fg('**/*.md', {
     absolute: true,
     cwd: sourceDir,
@@ -146,7 +269,6 @@ async function main() {
     process.exit(1)
   }
 
-  // 按修改时间排序，获取最新的文件
   const sortedFiles = files
     .map(file => ({
       file,
@@ -154,14 +276,12 @@ async function main() {
     }))
     .sort((a, b) => b.mtime - a.mtime)
 
-  // 显示找到的文件（最新的前5个）
   console.log('\n📄 找到的 markdown 文件（按修改时间排序）:')
   sortedFiles.slice(0, 5).forEach((item, index) => {
     const time = new Date(item.mtime).toLocaleString('zh-CN')
     console.log(`  ${index + 1}. ${basename(item.file)} (${time})`)
   })
 
-  // 选择文件
   const { selectedIndex } = await prompts({
     type: 'select',
     name: 'selectedIndex',
@@ -181,11 +301,68 @@ async function main() {
   const selectedFile = sortedFiles[selectedIndex].file
   console.log('\n✅ 已选择:', basename(selectedFile))
 
+  return selectedFile
+}
+
+async function main() {
+  const filePathArg = process.argv[2]
+  const blogSourceDir = process.env.BLOG_SOURCE_DIR
+
+  let selectedFile: string
+  let isWeekly = true
+
+  if (filePathArg) {
+    // 指定了文件或目录路径参数
+    if (!existsSync(filePathArg)) {
+      console.error(`❌ 路径不存在: ${filePathArg}`)
+      process.exit(1)
+    }
+
+    const fileStat = statSync(filePathArg)
+
+    if (fileStat.isFile()) {
+      selectedFile = resolve(filePathArg)
+      isWeekly = !!(blogSourceDir && isUnderDir(selectedFile, blogSourceDir))
+      console.log(isWeekly ? '📰 周刊文章' : '📄 非周刊文章')
+      console.log('\n✅ 已选择:', basename(selectedFile))
+    }
+    else if (fileStat.isDirectory()) {
+      selectedFile = await selectFileFromDir(filePathArg)
+      isWeekly = true
+    }
+    else {
+      console.error('❌ 不支持的路径类型')
+      process.exit(1)
+    }
+  }
+  else {
+    // 未提供参数，使用 BLOG_SOURCE_DIR
+    if (!blogSourceDir) {
+      console.error('❌ 请提供文件路径参数或设置 BLOG_SOURCE_DIR 环境变量')
+      console.log('\n使用方法:')
+      console.log('  1. 指定文件路径: pnpm tsx scripts/copy-post.ts <文件路径>')
+      console.log('  2. 设置环境变量: export BLOG_SOURCE_DIR=<源目录路径>')
+      console.log('  3. 或通过参数指定目录: pnpm tsx scripts/copy-post.ts <目录路径>')
+      process.exit(1)
+    }
+
+    if (!existsSync(blogSourceDir)) {
+      console.error(`❌ 目录不存在: ${blogSourceDir}`)
+      process.exit(1)
+    }
+
+    selectedFile = await selectFileFromDir(blogSourceDir)
+    isWeekly = true
+  }
+
   // 读取文件内容
   let content = await fs.readFile(selectedFile, 'utf-8')
 
   // 去除初稿部分，只保留终稿
   content = extractFinalDraft(content)
+
+  // 处理 Obsidian 图片链接：上传并替换
+  content = await processObsidianImages(content)
 
   // 检查是否已有 frontmatter
   const hasFrontmatter = content.startsWith('---')
@@ -278,23 +455,47 @@ async function main() {
     }
   }
 
-  // 获取下一个周刊编号
-  const nextNumber = await getNextWeeklyNumber()
-  const { customNumber } = await prompts({
-    type: 'number',
-    name: 'customNumber',
-    message: '请输入周刊编号',
-    initial: nextNumber,
-    min: 1,
-  })
+  // 生成文件名
+  let newFilename: string
 
-  if (customNumber === undefined) {
-    console.log('❌ 已取消')
-    process.exit(0)
+  if (isWeekly) {
+    // 周刊文章：使用编号命名
+    const nextNumber = await getNextWeeklyNumber()
+    const { customNumber } = await prompts({
+      type: 'number',
+      name: 'customNumber',
+      message: '请输入周刊编号',
+      initial: nextNumber,
+      min: 1,
+    })
+
+    if (customNumber === undefined) {
+      console.log('❌ 已取消')
+      process.exit(0)
+    }
+
+    const weeklyNumber = customNumber || nextNumber
+    newFilename = `weekly-${padWeeklyNumber(weeklyNumber)}.md`
+  }
+  else {
+    // 非周刊文章：交互式输入文件名
+    const defaultFilename = toPinyinFilename(meta.title || basename(selectedFile, '.md'))
+
+    const { customFilename } = await prompts({
+      type: 'text',
+      name: 'customFilename',
+      message: '请输入文件名称（不含扩展名，中文将自动转为拼音）',
+      initial: defaultFilename,
+    })
+
+    if (customFilename === undefined) {
+      console.log('❌ 已取消')
+      process.exit(0)
+    }
+
+    newFilename = `${toPinyinFilename(customFilename || defaultFilename)}.md`
   }
 
-  const weeklyNumber = customNumber || nextNumber
-  const newFilename = `weekly-${padWeeklyNumber(weeklyNumber)}.md`
   const destPath = join(POSTS_DIR, newFilename)
 
   // 检查文件是否已存在

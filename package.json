@@ -75,6 +75,7 @@
     "markdown-it-magic-link": "catalog:build",
     "markdown-it-table-of-contents": "catalog:build",
     "pathe": "catalog:dev",
+    "pinyin-pro": "catalog:",
     "pnpm": "catalog:dev",
     "prompts": "catalog:dev",
     "rimraf": "catalog:dev",
